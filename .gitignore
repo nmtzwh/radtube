@@ -1,0 +1,7 @@
+venv
+data
+log/*
+*.dat
+*.db
+*.pyc
+*.secret
