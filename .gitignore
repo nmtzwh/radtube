@@ -5,3 +5,4 @@ log/*
 *.db
 *.pyc
 *.secret
+__pycache__

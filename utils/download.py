@@ -25,10 +25,11 @@ class SimpleLogger(object):
         elif d['status'] == 'error':
             self.mOutput = 'ERROR!'
 
-def downloadWithURL(input_url, outPath='./data/'):
+def downloadWithURL(input_url, outPath='./data/', dryRun=False):
     logger = SimpleLogger()
 
     ydl_opts = {
+            'simulate': dryRun,
             'format': 'bestaudio/best',
             'postprocessors': [
                 {   
