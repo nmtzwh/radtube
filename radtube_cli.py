@@ -1,0 +1,149 @@
+#!/usr/bin/python
+
+# try to build a command line youtube music
+# lessons learned:
+# + use getstr for unicode input
+# + re-encoding the getstr output 
+
+import curses
+from curses.textpad import Textbox
+
+import time
+
+# unicode support 
+import locale
+locale.setlocale(locale.LC_ALL, '')
+
+# utils
+from utils.search_youtube import YoutubeAPI
+from utils.request import UrlRequestProcessor
+
+
+class Control(object):
+    def __init__(self, db):
+        self.api = YoutubeAPI()
+        self.pool = UrlRequestProcessor()
+        self.urlQueue = []
+        self.DB = db
+        
+    def doSearchAndUpdate(self, key, win):
+        try:
+            result = self.api.search(key)
+        except:
+            raise
+        win.clear()
+        y, x = win.getmaxyx()
+        for i in range(0, min(y-1, len(result))):
+            win.addnstr(i+1, 0, str(i) + ': ' + 
+                    result[i]['snippet']['title'], x)
+        win.addstr(0, 0, 'Choose video number: ', curses.A_REVERSE)
+        win.refresh()
+        curses.echo()
+        num = win.getstr().decode(encoding='utf-8')
+        curses.noecho()
+        if num.isdigit() and int(num)<len(result):
+            entry = result[int(num)]
+            self.pool.addUrlToQueue(entry['id'])
+            self.urlQueue.append({'title': entry['snippet']['title'], 'id': entry['id']})
+        # display current queue
+        self.displayQueue(win)
+
+    def startDownload(self, win):
+        win.clear()
+        self.urlQueue = []
+        self.pool.startProcess()
+        # draw info
+        win.addstr(0,0, 'Start downloading: ', curses.A_REVERSE)
+        ts = time.time()
+        while not self.pool.isFinished():
+            win.addstr(1, 0, str(int(time.time()-ts)) + ' sec ... please be patient')
+            win.refresh()
+            time.sleep(5)
+        win.addstr(1, 0, 'Download finished in ' +  str(int(time.time()-ts)) + ' seconds')
+        win.refresh()
+        # insert song into database
+        self.refreshDB()
+
+    def displayQueue(self, win):
+        win.clear()
+        y, x = win.getmaxyx()
+        for i in range(0, min(y-1, len(self.urlQueue))):
+            win.addnstr(i+1, 0, self.urlQueue[i]['id'] + ': ' + 
+                    self.urlQueue[i]['title'], x)
+        win.addstr(0, 0, 'Currently in queue: ', curses.A_BOLD)
+        win.refresh()
+
+    def showHelp(self, win):
+        win.clear()
+        win.addstr(0, 0, 'Available command: ', curses.A_REVERSE)
+        win.addstr(1, 0, '+ type \'/\' to begin a search; ')
+        win.addstr(2, 0, '+ type \'d\' to begin downloading; ')
+        win.addstr(3, 0, '+ type \'p\' to play or pause; ')
+        win.addstr(4, 0, '+ type \'q\' to quit; ')
+        win.addstr(5, 0, '+ type \'?\' to show this message. ')
+        win.refresh()
+
+    def refreshDB(self):
+        while not self.pool.resQueue.empty():
+            # dumb db: need ... modification
+            self.DB.append(self.pool.resQueue.get())
+
+    def playOrPauseMusic(self, win):
+        pass
+
+
+def main(stdscr):
+    # clear screen
+    stdscr.clear()
+
+    # initialize control
+    dumbDB = []
+    control = Control(dumbDB)
+
+    # add the title and bottom line
+    stdscr.addstr('Youtube Music CLI', curses.A_REVERSE)
+    stdscr.chgat(-1, curses.A_REVERSE)
+    stdscr.addstr(curses.LINES-1, 0, 'Press \'?\' for help, press \'q\' or \'Q\' to exit')
+    
+    # create main window
+    main_window = curses.newwin(curses.LINES-5, curses.COLS, 1,0)
+    main_window_vis = main_window.subwin(curses.LINES-7, curses.COLS-4, 2, 2)
+    main_window.box()
+    control.showHelp(main_window_vis)
+
+    # create input field
+    text_window = curses.newwin(3, curses.COLS, curses.LINES-4, 0)
+    text_window.addstr(1, 2, 'search here: ')
+    text_window.box()
+
+    text_window_vis = text_window.subwin(1, curses.COLS-20, curses.LINES-3, 15) 
+
+    # refresh
+    stdscr.noutrefresh()
+    main_window.noutrefresh()
+    text_window.noutrefresh()
+    curses.doupdate()
+
+    # main loop
+    while (True):
+        k = main_window.getch()
+        # response to key press
+        if k == ord('q') or k == ord('Q'):
+            break
+        if k == ord('?'):
+            control.showHelp(main_window_vis)
+        if k == ord('/'):
+            curses.echo()
+            sKey = text_window_vis.getstr().decode(encoding='utf-8') 
+            curses.noecho()
+            control.doSearchAndUpdate(sKey, main_window_vis)
+            text_window_vis.clear()
+            text_window_vis.refresh()
+        if k == ord('d'):
+            # start downloading 
+            control.startDownload(main_window_vis)
+        if k == ord('p'):
+            control.playOrPauseMusic(main_window_vis)
+
+if __name__ == '__main__':
+    curses.wrapper(main)

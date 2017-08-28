@@ -35,7 +35,8 @@ class YoutubeAPI:
         # loop these videos and get ids
         ids = []
         for res in temp_results:
-            ids.append(res['id']['videoId'])
+            if res['id']['kind'] == 'youtube#video':
+                ids.append(res['id']['videoId'])
         
         # query for video details and filter by duration
         video_response = self.youtube.videos().list(
