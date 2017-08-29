@@ -1,4 +1,5 @@
 youtube-dl
 google-api-python-client
 isodate
+python-mpv
 flask
