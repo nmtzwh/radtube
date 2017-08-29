@@ -85,9 +85,10 @@ class Control(object):
         win.addstr(1, 0, '+ type \'/\' to begin a search; ')
         win.addstr(2, 0, '+ type \'d\' to begin downloading; ')
         win.addstr(3, 0, '+ type \'p\' to play or pause; ')
-        win.addstr(4, 0, '+ type \'a\' to modify playlist')
-        win.addstr(5, 0, '+ type \'q\' to quit; ')
-        win.addstr(6, 0, '+ type \'?\' to show this message. ')
+        win.addstr(4, 0, '+ type \'P\' to display playlist')
+        win.addstr(5, 0, '+ type \'a\' to modify playlist')
+        win.addstr(6, 0, '+ type \'q\' to quit; ')
+        win.addstr(7, 0, '+ type \'?\' to show this message. ')
         win.noutrefresh()
         curses.doupdate()
 
@@ -149,15 +150,20 @@ class Control(object):
             return
         if self.player.playlist_pos == None:
             self.player.playlist_pos = 0
-            return
-        self.player.pause = not self.player.pause
+        else:
+            self.player.pause = not self.player.pause
+        # this is the info pannel (right-bottom)
+        win.addstr(0, 0, ('paused ' if self.player.pause else 'playing'), curses.A_REVERSE)
+        win.noutrefresh()
+        curses.doupdate()
+    
+    def showPlaylist(self, win):
         # update window info
         win.clear()
         y, x = win.getmaxyx()
         win.addstr(0, 0, 'Current playlist: ', curses.A_REVERSE)
         for i in range(0, min(y-1, self.player.playlist_count)):
             win.addnstr(i+1, 0, self.player.playlist[i]['filename'], x)
-        win.addstr(0, 20, ('paused' if self.player.pause else 'playing'))
         win.noutrefresh()
         curses.doupdate()
 
@@ -187,6 +193,10 @@ def main(stdscr):
     main_window.box()
     control.showHelp(main_window_vis)
 
+    # information pannel
+    info_window = curses.newwin(1, 10, curses.LINES-1, curses.COLS-11)
+    info_window.addstr(0, 0, 'Paused ', curses.A_REVERSE)
+
     # create input field
     text_window = curses.newwin(3, curses.COLS, curses.LINES-4, 0)
     text_window.addstr(1, 2, 'search here: ')
@@ -197,6 +207,7 @@ def main(stdscr):
     # refresh
     stdscr.noutrefresh()
     main_window.noutrefresh()
+    info_window.noutrefresh()
     text_window.noutrefresh()
     curses.doupdate()
 
@@ -221,9 +232,13 @@ def main(stdscr):
             # start downloading 
             control.startDownload(main_window_vis)
         if k == ord('p'):
-            control.playOrPauseMusic(main_window_vis)
+            control.playOrPauseMusic(info_window)
+        if k == ord('P'): # seperate control and display
+            control.showPlaylist(main_window_vis)
         if k == ord('a'):
             control.playlistChange(main_window_vis)
+            control.showPlaylist(main_window_vis)
 
 if __name__ == '__main__':
     curses.wrapper(main)
+

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # description:
 # test youtube api v3: searching videos with keywords and time limit
