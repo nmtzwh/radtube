@@ -54,7 +54,7 @@ python radtube_cli.py
 ## todos
 
 - [ ] window resize bug
-- [ ] `mpv` thread is blocking when quiting the app
+- [x] `mpv` thread is blocking when quiting the app
 - [ ] use database for better management of information
 - [ ] add more playback function, e.g. shuffle, repeat
 - [ ] isolate `Control` module for readability

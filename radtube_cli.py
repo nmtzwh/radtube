@@ -86,7 +86,7 @@ class Control(object):
         win.addstr(2, 0, '+ type \'d\' to begin downloading ')
         win.addstr(3, 0, '+ type \'p\' to play or pause ')
         win.addstr(4, 0, '+ type \'P\' to display playlist')
-        win.addstr(5, 0, '+ type \'a\' to modify playlist')
+        win.addstr(5, 0, '+ type \'a\' to add from DB to playlist')
         win.addstr(6, 0, '+ type \'r\' to refresh window')
         win.addstr(7, 0, '+ type \'q\' to quit ')
         win.addstr(8, 0, '+ type \'?\' to show this message ')
@@ -169,7 +169,7 @@ class Control(object):
         curses.doupdate()
 
     def quit(self):
-        # self.player.playlist_clear
+        self.player.terminate() # solve blocking problem
         self.player.quit()
         
 
