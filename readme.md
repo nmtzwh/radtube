@@ -1,8 +1,8 @@
-# An command line music player for Youtube
+# A command line music player for Youtube
 
 ## Install
 
-Dependancy:
+Dependency:
 
 ```bash
 # for playback
@@ -34,7 +34,7 @@ python3 -m venv ./venv
 pip install -r requirements.txt
 ```
 
-Generate path and files (since it's private):
+Generate path and files (for private data):
 
 ```bash
 # in radtube root path
@@ -53,6 +53,7 @@ python radtube_cli.py
 
 ## todos
 
+- [ ] window resize bug
 - [ ] `mpv` thread is blocking when quiting the app
 - [ ] use database for better management of information
 - [ ] add more playback function, e.g. shuffle, repeat

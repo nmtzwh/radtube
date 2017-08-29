@@ -82,13 +82,14 @@ class Control(object):
     def showHelp(self, win):
         win.clear()
         win.addstr(0, 0, 'Available command: ', curses.A_REVERSE)
-        win.addstr(1, 0, '+ type \'/\' to begin a search; ')
-        win.addstr(2, 0, '+ type \'d\' to begin downloading; ')
-        win.addstr(3, 0, '+ type \'p\' to play or pause; ')
+        win.addstr(1, 0, '+ type \'/\' to begin a search ')
+        win.addstr(2, 0, '+ type \'d\' to begin downloading ')
+        win.addstr(3, 0, '+ type \'p\' to play or pause ')
         win.addstr(4, 0, '+ type \'P\' to display playlist')
         win.addstr(5, 0, '+ type \'a\' to modify playlist')
-        win.addstr(6, 0, '+ type \'q\' to quit; ')
-        win.addstr(7, 0, '+ type \'?\' to show this message. ')
+        win.addstr(6, 0, '+ type \'r\' to refresh window')
+        win.addstr(7, 0, '+ type \'q\' to quit ')
+        win.addstr(8, 0, '+ type \'?\' to show this message ')
         win.noutrefresh()
         curses.doupdate()
 
@@ -238,6 +239,13 @@ def main(stdscr):
         if k == ord('a'):
             control.playlistChange(main_window_vis)
             control.showPlaylist(main_window_vis)
+        if k == ord('r'):
+            stdscr.noutrefresh()
+            main_window.noutrefresh()
+            info_window.noutrefresh()
+            text_window.noutrefresh()
+            curses.doupdate()
+
 
 if __name__ == '__main__':
     curses.wrapper(main)
