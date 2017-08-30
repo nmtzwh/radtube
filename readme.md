@@ -51,6 +51,24 @@ Now you should be able to run the app with:
 python radtube_cli.py
 ```
 
+## Basic usages
+
+Press '?' on your keyboard to view all the key-bindings.
+
+In the beginning, you need to search for your music using '/' and 
+then typing your keyword. The first 25 results will show up in your 
+screen, it is time to select which one your want to put into the 
+download queue by entering its number (entering anything else to cancel). 
+After queuing several tracks, just press 'd' to start downloading. 
+Please be patient in this step, feel free to grab a tea or coffee and chill. 
+
+All the tracks you've downloaded are stored in `data` directory. You can 
+press 'a' to view your collections and add them to playlist.
+This page use the `vim` key-bindings to navigate through the database, 
+i.e. 'hjkl' to look around, 'y' to add track, 'q' to quit current session.
+When your playlist is not empty, you can now press lowercase 'p' to start / pause playing, 
+while pressing uppercase 'P' will guide you to the current playlist.
+
 ## todos
 
 - [ ] window resize bug
